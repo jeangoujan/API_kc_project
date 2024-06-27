@@ -1,0 +1,132 @@
+В данном случае можно прописать достаточно много тест-кейсов, ограничусь основными (позитивные проверки)
+
+Test-case #1 | Создание пользователя с использованием валидных данных
+Description:
+Запрос на создание пользователя с указанием username и password в теле запроса
+
+Curl
+curl -X 'POST' \
+  'https://demoqa.com/Account/v1/User' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "string",
+  "password": "string"
+}'
+
+Scenario:
+1) Вставить в теле запроса в поле userName  - имя пользователя (Например "John")
+2) Вставить в теле запроса в поле password  - пароль пользователя (не менее 8 символов,
+использование спец. символов, букв)
+3) Отправить запрос
+
+Expected result:
+Status code == 201 Created
+Response body(example):
+{
+  "userID": "a826fd80-02c6-4662-8ac4-a4530c70ef2g",
+  "username": "John",
+  "books": []
+}
+
+
+Test-case #2 | Проверка пользователя на факт авторизации в системе
+Description:
+Запрос на проверку пользователя на авторизованность с указанием userName и password в теле запроса
+
+Curl
+curl -X 'POST' \
+  'https://demoqa.com/Account/v1/Authorized' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "string",
+  "password": "string"
+}'
+
+Scenario:
+1) Вставить в теле запроса в поле userName  - имя пользователя (Например "John")
+2) Вставить в теле запроса в поле password  - пароль пользователя
+3) Отправить запрос
+
+Expected result:
+Status code == 200 OK
+Response body:
+Если авторизован == True, в противном случае == False
+
+
+
+Test-case #3 | Генерации токена авторизации
+Description:
+Запрос на генерацию токена существующим пользователем с указанием userName и password в теле запроса
+
+Curl
+curl -X 'POST' \
+  'https://demoqa.com/Account/v1/GenerateToken' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "string",
+  "password": "string"
+}'
+
+Scenario:
+1) Вставить в теле запроса в поле userName  - имя пользователя (Например "John")
+2) Вставить в теле запроса в поле password  - пароль пользователя
+3) Отправить запрос
+
+Expected result:
+Status code == 200 OK
+Response body(example):
+{
+  "token": "eyJhbGciOiJIUzIwNiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IkdvIiwicGFzc3dvcmQiOiJAMTJBekAxMkF6IiwiaWF0IjoxNzE5NDY2ODYzfQ.mBAIHA1OCMgY9yCwf7Q07Cy7ptnbMfQPF8KyZV7ylbA",
+  "expires": "2024-07-04T05:41:03.781Z",
+  "status": "Success",
+  "result": "User authorized successfully."
+}
+
+
+
+Test-case #4 | Получение информации о пользователе
+Description:
+Запрос на получение информации о пользователе с указанием UUID в параметрах запроса
+
+Curl
+curl --location 'https://demoqa.com/Account/v1/User/{UUID}' \
+--header 'Authorization: Bearer {accessToken}'
+
+Preconditions:
+1) При создании пользователя, получить из тела ответа userID
+2) Получить AccessToken из запроса GenerateToken -> Вставить токен с префиксом Bearer в заголовок 'Authorization'
+
+Scenario:
+1) Вставить userID в query параметрах запроса
+2) Отправить запрос
+
+Expected result:
+Status code == 200 OK
+Response body(example):
+{
+    "userId": "7bf4b0ab-e58a-42ac-ad9d-0d3be474dd26",
+    "username": "Goo",
+    "books": []
+}
+
+
+Test-case #5 | Удаление пользователя
+Description:
+Запрос на удаление пользователя с указанием UUID в параметрах запроса
+
+curl --location --request DELETE 'https://demoqa.com/Account/v1/User/{UUID}' \
+--header 'Authorization: Bearer {accessToken}'
+
+Preconditions:
+1) При создании пользователя, получить из тела ответа userID
+2) Получить AccessToken из запроса GenerateToken -> Вставить токен с префиксом Bearer в заголовок 'Authorization'
+
+Scenario:
+1) Вставить userID в query параметрах запроса
+2) Отправить запрос
+
+Expected result:
+Status code == 204 No content
